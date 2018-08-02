@@ -4,9 +4,13 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, TextField, SubmitField, RadioField
 from wtforms import validators, ValidationError
 from bson.objectid import ObjectId #for accesing objectid in mongodb
-import numpy as np
+#import numpy as np
+#import pandas as pd
 import itertools
 from collections import Counter, defaultdict
+from string import punctuation
+import re
+
 
 
 def connect():
@@ -30,9 +34,10 @@ class ContactForm(Form):
 
 class LanguagesSelection(FlaskForm):
     language = SelectField('Programming Language', choices=[('cpp', 'C++'), ('py', 'Python'), ('text', 'Plain Text')])
-    location = SelectField('Location', choices=[('Köln', 'Köln'), ('Bonn', 'Bonn'), ('Leipzig', 'Leipzig'), ('Frankfurt', 'Frankfurt'), ('Hamburg', 'Hamburg')])
+    location = SelectField('Location', choices=[])
+    #location = SelectField('Location', choices=[('Köln', 'Köln'), ('Bonn', 'Bonn'), ('Leipzig', 'Leipzig'), ('Frankfurt', 'Frankfurt'), ('Hamburg', 'Hamburg')])
     langD = SelectField('Language', choices=[])
-
+    skill = SelectField('City', choices=[])
 
 @app.route('/', methods= ['GET', 'POST'])
 def index():
@@ -49,7 +54,7 @@ def home():
     #cat = form.location.data
     #db = handle.itproject.({})
     if loc == "None":
-        loc = 'Bonn'
+        loc = 'Leipzig'
     db = handle.itproject.find({"location":loc})
     print(loc)
     #print(cat)
@@ -71,9 +76,36 @@ def home():
     #print(c)
     #for a in c:
         #print(a)
+    #locate = handle.itproject.find
+    l = handle.itproject.find({})
+    #list = [''.join(c for c in s if c not in punctuation) for s in list]
+    def clean(datab):
+        clean_list = []
+        for data in datab:
+            y = data['location']
+            clean_list.append(y)
 
+            cleaned = set(clean_list)
+
+            final_cleaned = list(cleaned)
+            ('@$\t' in x or '#' in x)
+            final_cleaned = [x for x in final_cleaned if not ('Nor' in x or 'D-' in x or 'Nähe' in x or 'PLZ' in x or '[^A-Za-z0-9]' in x )]
+
+
+            final_cleaned.sort()
+            #final_cleaned = [''.join(c for c in s if c not in punctuation) for s in final_cleaned]
+        return final_cleaned
+
+
+    fa = clean(datab=l)
+    print(len(fa))
+    #print(fa)
+
+    #print(l)
     print(db.count())
-
+    form.location.choices = [(city[:20], city[:20]) for city in fa]
+    form.skill.choices = [(city["_id"], city["skills"][:40])for city in handle.itproject.find({"location": loc})]
+    print(loc)
 
     form.langD.choices = [(city, city[:20]) for city in final_cleaned]
     if request.method == 'POST':
@@ -103,7 +135,21 @@ def contact():
     elif request.method == 'GET':
         return render_template('contact.html', form=form)
 
+@app.route('/home/<location>')
+def city(location):
+    #get cities given by the user
+    stadt = handle.itproject.find({"location":location})
+    cityArray = []
+    for city in stadt:
+        cityObj = {}
+        obj_id = str(city["_id"]) #objid cant be jsonified so we cob´nvert to string
+        cityObj['id'] = obj_id
+        cityObj['location'] = city['location'][0]
+        cityObj['skills'] = city['skills']
+        cityArray.append(cityObj)
+        #print(obj_id)
 
+    return jsonify({'stadt' : cityArray})
 
 
 

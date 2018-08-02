@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+   <body>
+
+      <h2 style = "text-align: center;">Contact Form</h2>
+      <form method="POST">
+        {{ form.csrf_token }}
+        {{ form.location }}
+        {{ form.langD }}
+        {{ form.skill }}
+
+        <input type="submit">
+      </form>
+      <script>
+          var state_select = document.getElementById("location");
+          var city_select = document.getElementById("skill");
+          state_select.onchange = function()  {
+
+
+              state = state_select.value;
+              
+
+              fetch('/home/' + state).then(function(response) {
+                  response.json().then(function(data) {
+                    let optionHTML = "";
+
+                    for (let city of data.stadt) {
+                        optionHTML += '<option value="' + city['id'] + '">' + city['skills'] + '</option>';
+
+
+                    }
+
+                    city_select.innerHTML = optionHTML;
+
+
+                  });
+
+              });
+          }
+      </script>
+
+   </body>
+</html>

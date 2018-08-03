@@ -79,32 +79,34 @@ def home():
     #locate = handle.itproject.find
     l = handle.itproject.find({})
     #list = [''.join(c for c in s if c not in punctuation) for s in list]
-    def clean(datab):
-        clean_list = []
-        for data in datab:
-            y = data['location']
-            clean_list.append(y)
 
-            cleaned = set(clean_list)
-
-            final_cleaned = list(cleaned)
-            ('@$\t' in x or '#' in x)
-            final_cleaned = [x for x in final_cleaned if not ('Nor' in x or 'D-' in x or 'Nähe' in x or 'PLZ' in x or '[^A-Za-z0-9]' in x )]
+    clean_list = []
+    for data in l:
+        #pattern = re.compile(r"\d+")
+        #pattern2 = re.compile(r"\s")
+        result = data['location']
+        #y = pattern.sub("", result)
 
 
-            final_cleaned.sort()
-            #final_cleaned = [''.join(c for c in s if c not in punctuation) for s in final_cleaned]
-        return final_cleaned
+        clean_list.append(result)
+
+    cleaned = set(clean_list)
+
+    final_cleaned2 = list(cleaned)
+
+    final_cleaned2 = [x for x in final_cleaned2 if not ('Nor' in x or 'D-' in x or 'Nähe' in x or 'PLZ' in x or '[^A-Za-z0-9]' in x )]
 
 
-    fa = clean(datab=l)
-    print(len(fa))
+    final_cleaned2.sort()
+    #final = final_cleaned
+    #final_cleaned = [''.join(c for c in s if c not in punctuation) for s in final_cleaned]
+    print(len(final_cleaned2))
     #print(fa)
 
     #print(l)
     print(db.count())
-    form.location.choices = [(city[:20], city[:20]) for city in fa]
-    form.skill.choices = [(city["_id"], city["skills"][:40])for city in handle.itproject.find({"location": loc})]
+    form.location.choices = [(city[:20], city[:20]) for city in final_cleaned2]
+    form.skill.choices = [(city["_id"], list(set(city["skills"]))[0])for city in handle.itproject.find({"location": loc})]
     print(loc)
 
     form.langD.choices = [(city, city[:20]) for city in final_cleaned]
@@ -142,10 +144,11 @@ def city(location):
     cityArray = []
     for city in stadt:
         cityObj = {}
+        city['skills']
         obj_id = str(city["_id"]) #objid cant be jsonified so we cob´nvert to string
         cityObj['id'] = obj_id
         cityObj['location'] = city['location'][0]
-        cityObj['skills'] = city['skills']
+        cityObj['skills'] = city['skills'][0][:20]
         cityArray.append(cityObj)
         #print(obj_id)
 

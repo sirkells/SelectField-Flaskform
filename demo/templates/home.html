@@ -2,9 +2,10 @@
 <html>
    <body>
 
-      <h2 style = "text-align: center;">Contact Form</h2>
+      <h2 style = "text-align: center;">Filter</h2>
       <form method="POST">
-        {{ form.csrf_token }}
+        {{ form.csrf_token }}<br>
+
         {{ form.location }}
         {{ form.langD }}
         {{ form.skill }}
@@ -18,7 +19,7 @@
 
 
               state = state_select.value;
-              
+
 
               fetch('/home/' + state).then(function(response) {
                   response.json().then(function(data) {
